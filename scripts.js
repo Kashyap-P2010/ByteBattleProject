@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     $('#stockSelectionPopup').modal('show'); // Show popup on load
 
     const selectedStocks = [];
-    const tickers = { RELIANCE: 'RELIANCE', ITC: 'ITC', HDFC: 'HDFC', TITAN: 'TITAN', SBIN: 'SBI', SUNPHARMA: 'SUNPHARMA' };
+    const alphaVantageKey = 'DYUP8VE9PJH8O9I2';
 
     document.querySelectorAll(".stock-option").forEach(option => {
         option.addEventListener("click", () => {
@@ -23,24 +23,34 @@ document.addEventListener("DOMContentLoaded", () => {
         container.innerHTML = '';
 
         for (const ticker of selectedStocks) {
-            const stockData = await fetchStockData(ticker);
+            const stockData = await fetchStockData(ticker, alphaVantageKey);
             const stockCard = createStockCard(ticker, stockData);
             container.appendChild(stockCard);
         }
     });
 });
 
-async function fetchStockData(ticker) {
-    const apiKey = 'J4xRtJrvCbp_X9xVWnKzezCXjAPyM88z';
-    const url = `https://api.polygon.io/v1/last/stocks/${ticker}?apiKey=${apiKey}`;
-    const response = await fetch(url);
-    const data = await response.json();
-    return {
-        open: data.open || 'N/A',
-        close: data.close || 'N/A',
-        high: data.high || 'N/A',
-        low: data.low || 'N/A'
-    };
+async function fetchStockData(ticker, apiKey) {
+    const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&apikey=${apiKey}`;
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        
+        const today = new Date().toISOString().split('T')[0];
+        const timeSeries = data['Time Series (Daily)'];
+        const stockInfo = timeSeries[today] || Object.values(timeSeries)[0];
+
+        return {
+            open: stockInfo['1. open'] || 'N/A',
+            close: stockInfo['4. close'] || 'N/A',
+            high: stockInfo['2. high'] || 'N/A',
+            low: stockInfo['3. low'] || 'N/A'
+        };
+    } catch (error) {
+        console.error(`Failed to fetch stock data for ${ticker}:`, error.message);
+        return { open: 'N/A', close: 'N/A', high: 'N/A', low: 'N/A' };
+    }
 }
 
 function createStockCard(ticker, stockData) {
@@ -59,20 +69,3 @@ function createStockCard(ticker, stockData) {
         </div>`;
     return card;
 }
-// Select elements
-const hamburgerIcon = document.getElementById('hamburgerIcon');
-const sidebar = document.getElementById('sidebar');
-const body = document.body;
-
-// Toggle sidebar visibility
-hamburgerIcon.addEventListener('click', () => {
-  sidebar.style.transform = sidebar.style.transform === 'translateX(250px)' ? 'translateX(-250px)' : 'translateX(250px)';
-  body.classList.toggle('blur');
-});
-
-// Close sidebar on hover out
-sidebar.addEventListener('mouseleave', () => {
-  sidebar.style.transform = 'translateX(-250px)';
-  body.classList.remove('blur');
-});
-

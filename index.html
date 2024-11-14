@@ -8,7 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
-    <!-- Stock Selection Popup -->
     <div id="stockSelectionPopup" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -18,13 +17,12 @@
                 <div class="modal-body">
                     <p>Select stocks to display:</p>
                     <div class="stock-options">
-                        <!-- Stock options, images with check icons -->
-                        <img class="stock-option" src="assets/Reliance.png" data-ticker="RELIANCE" alt="Reliance" />
-                        <img class="stock-option" src="assets/ITC.png" data-ticker="ITC" alt="ITC" />
-                        <img class="stock-option" src="assets/HDFC.jpg" data-ticker="HDFC" alt="HDFC" />
-                        <img class="stock-option" src="assets/TITAN.png" data-ticker="TITAN" alt="Titan" />
-                        <img class="stock-option" src="assets/SBI.png" data-ticker="SBIN" alt="SBI" />
-                        <img class="stock-option" src="assets/SUNPHARMA.png" data-ticker="SUNPHARMA" alt="Sun Pharma" />
+                        <img class="stock-option" src="assets/AAPL.png" data-ticker="AAPL" alt="Apple" />
+                        <img class="stock-option" src="assets/MSFT.png" data-ticker="MSFT" alt="Microsoft" />
+                        <img class="stock-option" src="assets/AMZN.png" data-ticker="AMZN" alt="Amazon" />
+                        <img class="stock-option" src="assets/GOOGL.png" data-ticker="GOOGL" alt="Google" />
+                        <img class="stock-option" src="assets/TSLA.png" data-ticker="TSLA" alt="Tesla" />
+                        <img class="stock-option" src="assets/NVDA.png" data-ticker="NVDA" alt="NVIDIA" />
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -33,11 +31,7 @@
             </div>
         </div>
     </div>
-
-    <!-- Stock Cards Container -->
-    <div id="stockCardsContainer" class="d-flex flex-wrap justify-content-start">
-        <!-- Duplicate stock card template for each selected stock -->
-    </div>
+    <div id="stockCardsContainer" class="d-flex flex-wrap justify-content-start"></div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
