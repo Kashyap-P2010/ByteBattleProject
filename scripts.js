@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
-
+// hi
     document.getElementById("confirmSelection").addEventListener("click", async () => {
         $('#stockSelectionPopup').modal('hide');
         const container = document.getElementById("stockCardsContainer");
