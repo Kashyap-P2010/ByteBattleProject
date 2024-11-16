@@ -1,11 +1,16 @@
 .Stock-card {
   width: 250px;
-  border: 2px solid #ccc;
+  border: none;
   border-radius: 8px;
-  background-color: #f0f0f0;
+  background-color: #ddd;
   padding: 15px;
   margin: 10px;
   box-sizing: border-box;
+  color: black;
+}
+.Stock-card:hover {
+  background-color: #3e8e41;
+  color: white;
 }
 
 .Stock-card h1 {
@@ -15,9 +20,10 @@
 }
 
 .Stock-card .stock-img {
-  width: 100%;
-  height: auto;
+  width: 110%;
+  height: 60%;
   border-radius: 4px;
+
 }
 
 .Stock-card h4 {
@@ -40,6 +46,7 @@
 
 .stock-option.selected {
   opacity: 0.5;
+  border: 5px solid #008000;
   position: relative;
 }
 
