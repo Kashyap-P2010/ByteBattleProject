@@ -42,10 +42,11 @@
   cursor: pointer;
   margin: 5px;
   transition: opacity 0.2s ease;
+  border-radius: 8px;
 }
 
 .stock-option.selected {
-  opacity: 0.5;
+  opacity: 1;
   border: 5px solid #008000;
   position: relative;
 }
@@ -57,7 +58,20 @@
   right: 5px;
   color: green;
   font-size: 14px;
+  animation: fadeIn 0.3s ease-in-out;
 }
+
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: scale(0.5);
+  }
+  to {
+      opacity: 1;
+      transform: scale(1);
+  }
+}
+
 
 * {
   margin: 0;

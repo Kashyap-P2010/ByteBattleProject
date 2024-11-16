@@ -69,3 +69,56 @@ function createStockCard(ticker, stockData) {
         </div>`;
     return card;
 }
+document.querySelectorAll('.stock-option').forEach((img) => {
+    // Hover animations
+    img.addEventListener('mouseenter', () => {
+        gsap.to(img, { 
+            scale: 1.2, 
+            boxShadow: '0px 4px 20px rgba(0, 255, 0, 0.7)', 
+            duration: 0.4, 
+            ease: 'power3.out' 
+        });
+    });
+
+    img.addEventListener('mouseleave', () => {
+        gsap.to(img, { 
+            scale: 1, 
+            boxShadow: '0px 0px 0px rgba(0, 0, 0, 0)', 
+            duration: 0.4, 
+            ease: 'power3.out' 
+        });
+    });
+
+    // Selection animations
+    img.addEventListener('click', () => {
+        if (img.classList.contains('selected')) {
+            img.classList.remove('selected');
+            gsap.to(img, { 
+                borderColor: 'transparent', 
+                boxShadow: '0px 0px 0px rgba(0, 0, 0, 0)', 
+                scale: 1, 
+                duration: 0.5, 
+                ease: 'power2.out' 
+            });
+        } else {
+            img.classList.add('selected');
+            gsap.fromTo(
+                img,
+                { 
+                    borderColor: 'transparent', 
+                    boxShadow: '0px 0px 0px rgba(0, 255, 0, 0.5)', 
+                    scale: 1 
+                },
+                { 
+                    borderColor: '#008000', 
+                    boxShadow: '0px 4px 15px rgba(0, 255, 0, 0.8)', 
+                    scale: 1.2, 
+                    duration: 0.6, 
+                    ease: 'elastic.out(1, 0.5)' 
+                }
+            );
+        }
+    });
+});
+
+  
