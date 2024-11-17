@@ -27,17 +27,22 @@ app.get('/stock/:file', (req, res) => {
     });
 });
 
-// API endpoint to fetch stock data
+// API endpoint to fetch stock data (Polygon.io)
 app.get('/api/stock/:symbol', async (req, res) => {
     const { symbol } = req.params;
-    const apiKey = 'uNG2yhZ0oEYp0atPV7izPEVrvlm_QWEY'; // Replace with your Polygon API key
+    const polygonKey = 'dH4v61tsW0SojvndgGAB5wTNuoC81zXO'; // Replace with your Polygon.io API key
 
     try {
-        const response = await axios.get(`https://api.polygon.io/v1/last/nbbo/${symbol}?apiKey=${apiKey}`);
-        res.json(response.data);
+        const response = await axios.get(`https://api.polygon.io/v2/aggs/ticker/${symbol}/prev?apiKey=${polygonKey}`);
+        if (response.data.results && response.data.results.length > 0) {
+            const stockDetails = response.data.results[0];
+            res.json(stockDetails);
+        } else {
+            res.status(404).json({ error: `No data found for symbol ${symbol}` });
+        }
     } catch (error) {
-        console.error(`Error fetching data for symbol ${symbol}:`, error.message);
-        res.status(500).json({ error: 'Failed to fetch stock data' });
+        console.error(`Error fetching data from Polygon.io for ${symbol}:`, error.message);
+        res.status(500).json({ error: 'Failed to fetch data from Polygon.io' });
     }
 });
 

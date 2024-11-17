@@ -83,3 +83,11 @@ body {
   font-family: Arial, sans-serif;
   overflow-x: hidden;
 }
+.modal-body ul {
+  padding-left: 20px;
+  list-style-type: none;
+}
+
+.modal-body ul li {
+  padding: 5px 0;
+}
