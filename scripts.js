@@ -193,7 +193,7 @@ async function fetchStockDataFromPolygon(ticker) {
 // Create stock card with source indication
 function createStockCard(ticker, stockData, timeSeries) {
     const card = document.createElement("div");
-    card.className = "stock-card bg-white p-3 m-2 rounded shadow";
+    card.className = "stock-card bg-pranav p-3 m-2 rounded shadow";
     card.style.width = "200px";
 
     card.innerHTML = `

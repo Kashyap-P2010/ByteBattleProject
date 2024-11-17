@@ -1,16 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Protest+Guerrilla&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+*{
+
+  font-family: "Work Sans", sans-serif;
+}
+
 .Stock-card {
   width: 250px;
   border: none;
   border-radius: 8px;
-  background-color: #ddd;
   padding: 15px;
   margin: 10px;
   box-sizing: border-box;
-  color: black;
+  background-color: #008000;
 }
 .Stock-card:hover {
   background-color: #3e8e41;
-  color: white;
+  color: white; 
 }
 
 .Stock-card h1 {
@@ -20,8 +26,8 @@
 }
 
 .Stock-card .stock-img {
-  width: 110%;
-  height: 60%;
+  width: 100%;
+  height: 100%;
   border-radius: 4px;
 
 }
@@ -37,17 +43,21 @@
 }
 
 .stock-option {
-  width: 60px;
-  height: 60px;
+  width: 75px;
+  height: 70px;
   cursor: pointer;
   margin: 5px;
   transition: opacity 0.2s ease;
   border-radius: 8px;
+  border: 5px solid #D6C0B3;
+  margin-top: 18px;
+  margin-bottom: 18px;
+  display: inline;
 }
 
 .stock-option.selected {
   opacity: 1;
-  border: 5px solid #008000;
+  border: 3px solid #008000;
   position: relative;
 }
 
@@ -82,6 +92,7 @@
 body {
   font-family: Arial, sans-serif;
   overflow-x: hidden;
+  height: 100%;
 }
 .modal-body ul {
   padding-left: 20px;
@@ -90,4 +101,14 @@ body {
 
 .modal-body ul li {
   padding: 5px 0;
+}
+.bg-pranav {
+  background-color: #D6C0B3;
+}
+.modal-title {
+  font-size: 40px;
+  margin-left: 110px;
+}
+.sudeep {
+  margin-left: 185px;
 }
