@@ -210,7 +210,7 @@ function createStockCard(ticker, stockData, timeSeries) {
     return card;
 }
 
-
+console.log("heklo")
 
 // Open stock modal
 function openStockModal(ticker, stockData, timeSeries) {
@@ -234,14 +234,19 @@ function openStockModal(ticker, stockData, timeSeries) {
     `;
 
     // Weekly Chart
+    week = timeSeries.weekly.map(w => w.date)
+    data = timeSeries.weekly.map(w => w.close)
+    
+    labels = ["Week 1", "Week 2", "Week 3", "Week 4",]
+    values = [402.27, 427.13, 502.00, 480.00]
     const weeklyCtx = document.getElementById("weeklyChart").getContext("2d");
     new Chart(weeklyCtx, {
         type: "line",
         data: {
-            labels: timeSeries.weekly.map(w => w.date),
+            labels: labels,
             datasets: [{
                 label: "Weekly Close Prices",
-                data: timeSeries.weekly.map(w => w.close),
+                data: values,
                 borderColor: "rgba(75, 192, 192, 1)",
                 borderWidth: 2,
                 fill: false,
@@ -255,10 +260,10 @@ function openStockModal(ticker, stockData, timeSeries) {
     new Chart(monthlyCtx, {
         type: "line",
         data: {
-            labels: timeSeries.monthly.map(m => m.date),
+            labels: ["May", "June", "July", "August"],
             datasets: [{
                 label: "Monthly Close Prices",
-                data: timeSeries.monthly.map(m => m.close),
+                data: [312.12, 406.51, 370.00, 212.21],
                 borderColor: "rgba(255, 99, 132, 1)",
                 borderWidth: 2,
                 fill: false,
