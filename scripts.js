@@ -2,8 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
     $('#stockSelectionPopup').modal('show'); // Show popup on load
 
     const selectedStocks = [];
-    const alphaVantageKey = 'GMCV8KLI4CCA708N';
-    const polygonKey = 'dH4v61tsW0SojvndgGAB5wTNuoC81zXO';
+    const alphaVantageKey = '1CWSWZHK6NGTV8YI';
+    const polygonKey = 'Cqg__9yCsXBwHzkhYTbBaAmyEzr3IxN0';
 
     // Stock option selection with animations
     document.querySelectorAll(".stock-option").forEach(option => {
