@@ -43,7 +43,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 // Fetch time-series data
-async function fetchTimeSeriesData(ticker, alphaVantageKey, polygonKey) {
+async function fetchTimeSeriesData(ticker, alphaVantageKey, polygonApiKey) {
+    // Try Alpha Vantage
     try {
         const weeklyResponse = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=${ticker}&apikey=${alphaVantageKey}`);
         const monthlyResponse = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${ticker}&apikey=${alphaVantageKey}`);
@@ -64,37 +65,34 @@ async function fetchTimeSeriesData(ticker, alphaVantageKey, polygonKey) {
 
             return { weekly, monthly };
         } else {
-            console.warn(`Alpha Vantage time-series data not found for ${ticker}. Falling back to Polygon.`);
-            return await fetchTimeSeriesFromPolygon(ticker, polygonKey);
+            console.warn(`Alpha Vantage data not found for ${ticker}.`);
         }
     } catch (error) {
-        console.warn(`Error fetching Alpha Vantage time-series data for ${ticker}. Falling back to Polygon: ${error}`);
-        return await fetchTimeSeriesFromPolygon(ticker, polygonKey);
+        console.error(`Error fetching Alpha Vantage time-series data for ${ticker}: ${error}`);
     }
-}
-async function fetchTimeSeriesFromPolygon(ticker, polygonKey) {
+
+    // Fall back to Polygon
     try {
-        const weeklyResponse = await fetch(`https://api.polygon.io/v2/aggs/ticker/${ticker}/range/7/day/2023-01-01/2023-12-31?adjusted=true&sort=desc&limit=10&apiKey=${polygonKey}`);
-        const monthlyResponse = await fetch(`https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/month/2023-01-01/2023-12-31?adjusted=true&sort=desc&limit=10&apiKey=${polygonKey}`);
-
-        const weeklyData = await weeklyResponse.json();
-        const monthlyData = await monthlyResponse.json();
-
-        const weekly = weeklyData.results.map(item => ({
-            date: new Date(item.t).toISOString().split('T')[0],
-            close: item.c,
-        }));
-
-        const monthly = monthlyData.results.map(item => ({
-            date: new Date(item.t).toISOString().split('T')[0],
-            close: item.c,
-        }));
-
-        return { weekly, monthly };
+        return await fetchTimeSeriesFromPolygon(ticker, polygonApiKey);
     } catch (error) {
         console.error(`Error fetching time-series data from Polygon for ${ticker}: ${error}`);
-        return null;
     }
+
+    return null; // Return null if both APIs fail
+}
+async function fetchTimeSeriesFromPolygon(ticker, polygonApiKey) {
+    const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/month/2023-01-01/2023-12-31?adjusted=true&sort=desc&limit=10&apiKey=${polygonApiKey}`;
+    const data = await fetchWithRetry(url);
+
+    if (data && data.results) {
+        const monthly = data.results.map(result => ({
+            date: new Date(result.t).toISOString().split('T')[0],
+            close: result.c,
+        }));
+        return { weekly: [], monthly };
+    }
+
+    throw new Error("Polygon data not available");
 }
 
 async function fetchStockDataFromPolygon(ticker, polygonKey) {
