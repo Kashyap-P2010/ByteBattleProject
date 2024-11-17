@@ -2,8 +2,27 @@ document.addEventListener("DOMContentLoaded", () => {
     $('#stockSelectionPopup').modal('show'); // Show popup on load
 
     const selectedStocks = [];
-    const alphaVantageKey = 'K0ROBPGGGLKX6IKH';
-    const polygonKey = 'Cqg__9yCsXBwHzkhYTbBaAmyEzr3IxN0';
+    const alphaVantageKeys = [
+        'UR99IXSBTTCF13N3', 'FD7HQBZBP0Y0WZB0', 'GZLLSB6AH1NR3GOR',
+        'Z8PRDXWUYS5QU0IQ', 'HGXFL235VYVD1MOB', 'Z6XM3B5OO01GJA6Y',
+        '3WR4N1RL795M3VGW', '5RQV2FLBYGA0HAIW', '26ZBZ4M6497SF3NJ', 'BG0TCDIF75WAGR55'
+    ];
+    const polygonKeys = [
+        'Xamwnk853o8rmbnfe2e_cAAGGpOIxXm0', 'FhTtubpu_10H2N5mUqaLpbRl7wGr77Uy',
+        'f5zXPVnlYLjyWnpPpNrGxv4GvnJpMArR', 'jhpgBa58lbCcanRepvPlsEYeUXUXHakw',
+        'AT19FEQDDPWT_3atLprCJWoSqh7agXQl', 'bth1OMhkTWrrjGQPDKaPMIS5s2ku_XfE',
+        '54Q_OhXPKgXDBBWxJmWNwcMLbv2oitge', 'vZHZZAsc6DeioNf4aCSHgD6WJ9S83E5S',
+        'sQ62HHpBaBMv49K0thuOC9I9_Gg0yhVp', 'M8duEl5sdM95F74Q5Y8cZpCrQnhPpBlo'
+    ];
+
+    let alphaIndex = 0;
+    let polygonIndex = 0;
+
+    const getAlphaKey = () => alphaVantageKeys[alphaIndex % alphaVantageKeys.length];
+    const getPolygonKey = () => polygonKeys[polygonIndex % polygonKeys.length];
+
+    const rotateAlphaKey = () => alphaIndex++;
+    const rotatePolygonKey = () => polygonIndex++;
 
     // Stock option selection with animations
     document.querySelectorAll(".stock-option").forEach(option => {
@@ -33,21 +52,26 @@ document.addEventListener("DOMContentLoaded", () => {
         container.innerHTML = ''; // Clear existing stock cards
 
         for (const ticker of selectedStocks) {
-            const stockData = await fetchStockData(ticker, alphaVantageKey, polygonKey);
-            const timeSeries = await fetchTimeSeriesData(ticker, alphaVantageKey, polygonKey);
+            const stockData = await fetchStockData(ticker);
+            const timeSeries = await fetchTimeSeriesData(ticker);
             if (stockData && timeSeries) {
                 const stockCard = createStockCard(ticker, stockData, timeSeries);
                 container.appendChild(stockCard);
             }
         }
     });
-});
 // Fetch time-series data
-async function fetchTimeSeriesData(ticker, alphaVantageKey, polygonApiKey) {
+async function fetchTimeSeriesData(ticker) {
     // Try Alpha Vantage
     try {
-        const weeklyResponse = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=${ticker}&apikey=${alphaVantageKey}`);
-        const monthlyResponse = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${ticker}&apikey=${alphaVantageKey}`);
+        const alphaKey = getAlphaKey();
+        const weeklyResponse = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=${ticker}&apikey=${alphaKey}`);
+        const monthlyResponse = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${ticker}&apikey=${alphaKey}`);
+
+        if (weeklyResponse.status === 429 || monthlyResponse.status === 429) {
+            rotateAlphaKey();
+            return fetchTimeSeriesData(ticker); // Retry with next key
+        }
 
         const weeklyData = await weeklyResponse.json();
         const monthlyData = await monthlyResponse.json();
@@ -73,33 +97,79 @@ async function fetchTimeSeriesData(ticker, alphaVantageKey, polygonApiKey) {
 
     // Fall back to Polygon
     try {
-        return await fetchTimeSeriesFromPolygon(ticker, polygonApiKey);
+        return await fetchTimeSeriesFromPolygon(ticker);
     } catch (error) {
         console.error(`Error fetching time-series data from Polygon for ${ticker}: ${error}`);
     }
 
     return null; // Return null if both APIs fail
 }
-async function fetchTimeSeriesFromPolygon(ticker, polygonApiKey) {
-    const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/month/2023-01-01/2023-12-31?adjusted=true&sort=desc&limit=10&apiKey=${polygonApiKey}`;
-    const data = await fetchWithRetry(url);
+async function fetchTimeSeriesFromPolygon(ticker) {
+    const polygonKey = getPolygonKey();
+    const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/month/2023-01-01/2023-12-31?adjusted=true&sort=desc&limit=10&apiKey=${polygonKey}`;
 
-    if (data && data.results) {
-        const monthly = data.results.map(result => ({
-            date: new Date(result.t).toISOString().split('T')[0],
-            close: result.c,
-        }));
-        return { weekly: [], monthly };
+    try {
+        const response = await fetch(url);
+        if (response.status === 429) {
+            rotatePolygonKey();
+            return fetchTimeSeriesFromPolygon(ticker); // Retry with next key
+        }
+
+        const data = await response.json();
+        if (data && data.results) {
+            const monthly = data.results.map(result => ({
+                date: new Date(result.t).toISOString().split('T')[0],
+                close: result.c,
+            }));
+            return { weekly: [], monthly };
+        }
+    } catch (error) {
+        throw new Error("Polygon data not available");
     }
+}
+ // Fetch stock data
+ async function fetchStockData(ticker) {
+    const alphaKey = getAlphaKey();
+    try {
+        const alphaResponse = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&apikey=${alphaKey}`);
+        if (alphaResponse.status === 429) {
+            rotateAlphaKey();
+            return fetchStockData(ticker); // Retry with next key
+        }
 
-    throw new Error("Polygon data not available");
+        const alphaData = await alphaResponse.json();
+        if (alphaData["Time Series (Daily)"]) {
+            const timeSeries = alphaData["Time Series (Daily)"];
+            const latestDate = Object.keys(timeSeries)[0];
+            const stockDetails = timeSeries[latestDate];
+
+            return {
+                source: 'AlphaVantage',
+                open: stockDetails["1. open"],
+                close: stockDetails["4. close"],
+                high: stockDetails["2. high"],
+                low: stockDetails["3. low"],
+            };
+        } else {
+            console.warn(`Alpha Vantage data not found for ticker ${ticker}. Falling back to Polygon.`);
+            return await fetchStockDataFromPolygon(ticker);
+        }
+    } catch (error) {
+        console.warn(`Error fetching Alpha Vantage data for ${ticker}. Falling back to Polygon: ${error}`);
+        return await fetchStockDataFromPolygon(ticker);
+    }
 }
 
-async function fetchStockDataFromPolygon(ticker, polygonKey) {
+async function fetchStockDataFromPolygon(ticker) {
+    const polygonKey = getPolygonKey();
     try {
         const response = await fetch(`https://api.polygon.io/v1/open-close/${ticker}/2023-12-01?adjusted=true&apiKey=${polygonKey}`);
-        const data = await response.json();
+        if (response.status === 429) {
+            rotatePolygonKey();
+            return fetchStockDataFromPolygon(ticker); // Retry with next key
+        }
 
+        const data = await response.json();
         if (data) {
             return {
                 source: 'Polygon.io',
@@ -115,33 +185,9 @@ async function fetchStockDataFromPolygon(ticker, polygonKey) {
 
     return null; // Return null if data fetch fails
 }
+});
 // Fetch stock data
-async function fetchStockData(ticker, alphaVantageKey, polygonKey) {
-    try {
-        const alphaResponse = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&apikey=${alphaVantageKey}`);
-        const alphaData = await alphaResponse.json();
 
-        if (alphaData["Time Series (Daily)"]) {
-            const timeSeries = alphaData["Time Series (Daily)"];
-            const latestDate = Object.keys(timeSeries)[0];
-            const stockDetails = timeSeries[latestDate];
-
-            return {
-                source: 'AlphaVantage',
-                open: stockDetails["1. open"],
-                close: stockDetails["4. close"],
-                high: stockDetails["2. high"],
-                low: stockDetails["3. low"],
-            };
-        } else {
-            console.warn(`Alpha Vantage data not found for ticker ${ticker}. Falling back to Polygon.`);
-            return await fetchStockDataFromPolygon(ticker, polygonKey);
-        }
-    } catch (error) {
-        console.warn(`Error fetching Alpha Vantage data for ${ticker}. Falling back to Polygon: ${error}`);
-        return await fetchStockDataFromPolygon(ticker, polygonKey);
-    }
-}
 // Create stock card
 
 // Create stock card with source indication
